@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Shortlister</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1600px; /* Widened for new column */
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 30px;
+        }
+        header h1 { margin: 0; font-size: 24px; }
+        main { padding: 30px; }
+        .upload-form {
+            background-color: #fdfdfd;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        input[type="file"] {
+            display: block;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-submit {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-submit:hover { background-color: #0056b3; }
+        .message {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .jd-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .jd-section h3 { margin-top: 0; }
+        .jd-section ul { padding-left: 20px; margin: 0; }
+        .jd-section li { margin-bottom: 8px; }
+        .jd-section a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .jd-section a:hover { text-decoration: underline; }
+        
+        .skills-container { display: flex; flex-wrap: wrap; gap: 30px; }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0;
+            list-style-type: none;
+        }
+        .skill-tag {
+            background-color: #e2e3e5;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .skill-tag.green { background-color: #a8e6cf; }
+        .skill-tag.red {
+            background-color: #fdd8d8;
+            color: #d10000;
+            border: 1px solid #d10000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+            vertical-align: top;
+        }
+        th { background-color: #f4f7f6; font-weight: 600; }
+        tr:nth-child(even) { background-color: #fdfdfd; }
+        td a {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        td a:hover { text-decoration: underline; }
+        td a strong { color: #00642f; }
+        .score-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 20px;
+        }
+        .score-bar {
+            height: 20px;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .final-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: #007bff;
+            text-align: center;
+        }
+        .matched-skill {
+            background-color: #a8e6cf;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 2px;
+        }
+        .negative-skill {
+            background-color: #fdd8d8;
+            color: #d10000;
+            border: 1px solid #d10000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 2px;
+        }
+        /* --- CGPA Styles --- */
+        .cgpa-pass {
+            color: #00642f;
+            font-weight: bold;
+        }
+        .cgpa-fail {
+            color: #d10000;
+            font-weight: bold;
+        }
+        .cgpa-not-found {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Resume Shortlister</h1>
+        </header>
+        
+        <main>
+            <section class="upload-form">
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="job_description_file">1. Upload Job Description (PDF, DOCX, TXT)</label>
+                        <input type="file" name="job_description_file" id="job_description_file" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resumes">2. Upload Resumes (Multiple PDFs, DOCX, TXT)</label>
+                        <input type="file" name="resumes" id="resumes" multiple required>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Find Top Matches</button>
+                </form>
+            </section>
+
+            {% if message %}
+                <div class="message message-error">{{ message }}</div>
+            {% endif %}
+
+            {% if results %}
+                <hr>
+                <section class="results-section">
+                    
+                    <div class="results-header">
+                        <h2>Analysis Results</h2>
+                        <div class="jd-section">
+                            <h3>Job Description Files</h3>
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('serve_file', filename=original_jd_filename) }}" target="_blank">
+                                        View Original JD ({{ original_jd_filename }})
+                                    </a>
+                                </li>
+                                {% if jd_highlighted_filename %}
+                                <li>
+                                    <a href="{{ url_for('serve_file', filename=jd_highlighted_filename) }}" target="_blank">
+                                        <strong>View JD with Highlights</strong>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="skills-container">
+                        <div>
+                            <h3>Required Skills from JD</h3>
+                            <ul class="skills-list">
+                                {% for skill in jd_skills_dict.keys() %}
+                                    <li class="skill-tag green">{{ skill }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        {% if jd_negative_skills %}
+                        <div>
+                            <h3>Negative Skills from JD</h3>
+                            <ul class="skills-list">
+                                {% for skill in jd_negative_skills %}
+                                    <li class="skill-tag red">{{ skill }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if jd_required_cgpa > 0 %}
+                        <div>
+                            <h3>Required CGPA</h3>
+                            <span class="skill-tag" style="font-size: 14px;">&gt;= {{ jd_required_cgpa }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+
+                    <h3 style="margin-top: 30px;">Top Matched Resumes</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Filename</th>
+                                <th style="width: 100px;">Final Score</th>
+                                <th style="width: 100px;">CGPA</th>
+                                <th style="width: 150px;">Semantic (SBERT)</th>
+                                <th style="width: 150px;">TF-IDF Match</th> 
+                                <th style="width: 150px;">Keyword Match (70%)</th>
+                                <th>Skills Analysis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resume in results %}
+                                <tr>
+                                    <td style="text-align: center; font-size: 20px; font-weight: bold;">{{ loop.index }}</td>
+                                    <td>
+                                        {{ resume.filename }}
+                                        <br><br>
+                                        <a href="{{ url_for('serve_file', filename=resume.filename) }}" target="_blank">
+                                            View Original
+                                        </a>
+                                        <br>
+                                        {% if resume.highlighted_file %}
+                                        <a href="{{ url_for('serve_file', filename=resume.highlighted_file) }}" target="_blank">
+                                            <strong>View Highlighted</strong>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="final-score">
+                                        {{ (resume.final_score * 100)|round(1) }}%
+                                    </td>
+                                    
+                                    <td>
+                                        {% if resume.cgpa_match_status == "Pass" %}
+                                            <span class="cgpa-pass">{{ resume.resume_cgpa_val }} (Pass)</span>
+                                        {% elif resume.cgpa_match_status == "Fail" %}
+                                            <span class="cgpa-fail">{{ resume.resume_cgpa_val }} (Fail)</span>
+                                        {% elif resume.cgpa_match_status == "Not Found" %}
+                                            <span class="cgpa-not-found">Not Found</span>
+                                        {% else %}
+                                            <span>N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="score-bar-container" title="{{ (resume.semantic_score * 100)|round(1) }}%">
+                                            <div class="score-bar" style="width: {{ (resume.semantic_score * 100) }}%; background-color: #28a745;">
+                                                {{ (resume.semantic_score * 100)|round(1) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="score-bar-container" title="{{ (resume.tfidf_score * 100)|round(1) }}%">
+                                            <div class="score-bar" style="width: {{ (resume.tfidf_score * 100) }}%; background-color: #ffc107; color: #333;">
+                                                {{ (resume.tfidf_score * 100)|round(1) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span style="font-size: 14px; font-weight: bold;">
+                                            {{ resume.match_count }} / {{ resume.total_jd_skills }}
+                                        </span>
+                                        <div class="score-bar-container" title="{{ (resume.keyword_score * 100)|round(1) }}%">
+                                            <div class="score-bar" style="width: {{ (resume.keyword_score * 100) }}%; background-color: #17a2b8;">
+                                                {{ (resume.keyword_score * 100)|round(1) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <td>
+                                        <strong>Matched:</strong>
+                                        <div class="skills-list" style="margin-bottom: 10px;">
+                                            {% for skill in resume.matched_skills_list %}
+                                                <span class="matched-skill">{{ skill }}</span>
+                                            {% else %}
+                                                <span>None</span>
+                                            {% endfor %}
+                                        </div>
+
+                                        {% if resume.found_negative_list %}
+                                        <strong>Negative Hits:</strong>
+                                        <div class="skills-list">
+                                            {% for skill in resume.found_negative_list %}
+                                                <span class="negative-skill">{{ skill }} (-{{ (resume.negative_penalty * 100)|round(0) }}% penalty)</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+            {% endif %}
+
+        </main>
+    </div>
+
+</body>
+</html>
